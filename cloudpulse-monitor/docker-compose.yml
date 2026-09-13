@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  cloudpulse:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cloudpulse-monitor
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+      - TELEGRAM_BOT_USERNAME=${TELEGRAM_BOT_USERNAME:-CloudPulseBot}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+    volumes:
+      - ./data_store.json:/app/data_store.json
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
